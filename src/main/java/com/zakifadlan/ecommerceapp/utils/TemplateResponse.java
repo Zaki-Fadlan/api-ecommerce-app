@@ -27,6 +27,9 @@ public class TemplateResponse {
         map.put("status","404");
         return map;
     }
+    public boolean chekNull(Object obj) {
+        return obj == null;
+    }
     public boolean checkNull(Object object) {
         try {
 

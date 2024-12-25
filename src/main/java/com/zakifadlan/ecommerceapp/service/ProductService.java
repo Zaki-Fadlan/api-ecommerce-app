@@ -7,7 +7,7 @@ import java.util.UUID;
 
 public interface ProductService {
     public Map insertProduct(Product product);
+    public Map getProductByID(UUID id);
     public Map updateProduct(Product product);
     public Map deleteProduct(UUID product);
-    public Map getAllProduct(int size, int page);
 }

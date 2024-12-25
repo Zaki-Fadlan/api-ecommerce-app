@@ -7,8 +7,9 @@ import com.zakifadlan.ecommerceapp.utils.TemplateResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
+import java.util.Date;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -37,9 +38,41 @@ public class ProductImpl implements ProductService {
     }
 
     @Override
+    public Map getProductByID(UUID id) {
+        try {
+            Optional<Product> checkIdProduct = productRepository.findById(id);
+            if (checkIdProduct.isEmpty()){
+                return templateResponse.templateError("Product not found");
+            }
+            Product product = checkIdProduct.get();
+            String successMessage = String.format(
+                    "Product '%s' has founded",
+                    product.getName()
+            );
+            return templateResponse.templateSucces(product,successMessage,"200");
+        }catch (Exception e){
+            return templateResponse.templateError(e);
+        }
+    }
+
+
+
+    @Override
     public Map updateProduct(Product product) {
         try {
-            return templateResponse.templateSucces(product,"update Success","200");
+            if (templateResponse.chekNull(product.getId())){
+                return templateResponse.templateError("Product or required fields are missing");
+            }
+            Optional<Product> checkIdProduct = productRepository.findById(product.getId());
+            if (checkIdProduct.isEmpty()){
+                return templateResponse.templateError("Product not found");
+            }
+            Product updatedProduct = productRepository.save(product);
+            String successMessage = String.format(
+                    "Product '%s' has been successfully updated",
+                    product.getName()
+            );
+            return templateResponse.templateSucces(updatedProduct,successMessage,"200");
         }catch (Exception e){
             return templateResponse.templateError(e);
         }
@@ -48,21 +81,25 @@ public class ProductImpl implements ProductService {
     @Override
     public Map deleteProduct(UUID product) {
         try {
-            return templateResponse.templateSucces(product,"Delete Success","200");
+            if (templateResponse.chekNull(product)){
+                return templateResponse.templateError("Product or required fields are missing");
+            }
+            Optional<Product> checkIdProduct = productRepository.findById(product);
+            if (checkIdProduct.isEmpty()){
+                return templateResponse.templateError("Product not found");
+            }
+            Product existingProduct = checkIdProduct.get();
+            existingProduct.setDeleted_date(new Date());
+            Product updatedProduct = productRepository.save(existingProduct);
+            String successMessage = String.format(
+                    "Product '%s' has been successfully marked as deleted",
+                    updatedProduct.getName()
+            );
+            return templateResponse.templateSucces(updatedProduct,successMessage,"200");
         }catch (Exception e){
             return templateResponse.templateError(e);
         }
     }
 
-    @Override
-    public Map getAllProduct(int size, int page) {
-        Map map = new HashMap<>();
-        map.put("Size",size);
-        map.put("Page",page);
-        try {
-            return templateResponse.templateSucces(map,"Insert Success","200");
-        }catch (Exception e){
-            return templateResponse.templateError(e);
-        }
-    }
+
 }
